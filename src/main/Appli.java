@@ -31,11 +31,7 @@ public class Appli extends Application {
 	void construirePlateauJeu(Stage primaryStage) {
 			Group troupe = new Group();
 
-			// Plateau plateau = new Plateau(decalage, tailleCase,
-			// decalageTrait);
-			// troupe = plateau.dessinEnvironnement();
-//			GrilleTest grille = new GrilleTest(width, height);
-//			troupe.getChildren().add(grille);
+
 			Joueur moi = new Joueur(0);
 			Joueur J1 = new Joueur(1);
 			Joueur J2 = new Joueur(2);

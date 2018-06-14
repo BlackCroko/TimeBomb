@@ -23,10 +23,12 @@ public class Carte extends StackPane {
 	final TranslateTransition deplacement;
 	final SequentialTransition animation2;
 	
+	private int nb;
+	
 	private boolean retourné = false;
 
 	public Carte(int nb, int x, int y, int numero) {
-		
+		this.nb = nb;
 		if(numero == 0)
 			retourné = true;
 
@@ -62,8 +64,7 @@ public class Carte extends StackPane {
 	
 	private TranslateTransition move(Node front){
 		TranslateTransition moving = new TranslateTransition(halfFlipDuration, front);
-//		moving.setFromX(depart);
-		moving.setToX(390 - this.getLayoutX());
+		moving.setToX(340 + 50 *nb - this.getLayoutX());
 		moving.setToY(450 - this.getLayoutY());
 		return moving;
 	}
