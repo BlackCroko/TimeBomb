@@ -19,6 +19,8 @@ public class GameState {
 	private String pseudo;
 	private Salon salon;
 	private SalonGame salongame;
+	private Game game;
+	private FinDeGame finGame;
 	
 	private PrintWriter out;
 
@@ -31,8 +33,7 @@ public class GameState {
 //			socket = new Socket("127.0.0.1", 2009);
 			System.out.println("Connexion établie avec le serveur, authentification :");
 			rec = new Reception(this, socket);
-			t1 = new Thread(rec);
-			t1.start();
+			rec.start();
 
 		} catch (UnknownHostException e) {
 //			System.out.println("Impossible de se connecter à l'adresse " + socket.getLocalAddress());
@@ -56,13 +57,16 @@ public class GameState {
 		troupe.getChildren().addAll(salon);
 	}
 	
-	public void salonAjout(String message){
+	public void cleanSalon(){
 		salon.cleandata();
+	}
+	
+	public void salonAjout(String message){
 		String infos[] = message.split("@");
 		for(String s : infos){
 //			System.out.println(s);
 			String data[] = s.split(";");
-			salon.ajoutData(data[0], data[1]);
+			salon.ajoutData(data[0], data[1], data[2]);
 		}
 	}
 	
@@ -74,8 +78,8 @@ public class GameState {
 		}
 	}
 	
-	public void createSalonGame(String title) {
-		salongame = new SalonGame(socket, title);
+	public void createSalonGame(String title, boolean proprio) {
+		salongame = new SalonGame(socket, title, proprio);
 		troupe.getChildren().clear();
 		troupe.getChildren().addAll(salongame);
 	}
@@ -84,6 +88,29 @@ public class GameState {
 		CreationGame game = new CreationGame(socket, pseudo);
 		troupe.getChildren().clear();
 		troupe.getChildren().addAll(game);
+	}
+	
+	public void initGame(String perso, String carte, String joueurActuel) {
+		String[] cartes = carte.split(";");
+		game = new Game(socket, salongame.getData(), pseudo, Integer.parseInt(perso), cartes, joueurActuel);
+		troupe.getChildren().clear();
+		troupe.getChildren().addAll(game);
+	}
+	
+	public void retournerCarte(String name, int numcarte, int idcarte, int cabletrouve){
+		game.retournerCarte(name, numcarte, idcarte);
+		game.setScore(cabletrouve);
+	}
+	
+	public void distribution(String cartes){
+		String[] mescartes = cartes.split(";");
+		game.distribution(mescartes);
+	}
+	
+	public void FinGame(int team, String data){
+		finGame = new FinDeGame(team, data);
+		troupe.getChildren().clear();
+		troupe.getChildren().addAll(finGame);
 	}
 
 	public void afficheErreur() {

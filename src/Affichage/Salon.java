@@ -6,8 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import Client.FindGame;
-import Entite.Game;
+import Entite.GameSalon;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -33,8 +32,8 @@ public class Salon extends Group{
 
 	
 	private PrintWriter out;
-	private final ObservableList<Game> data;
-	TableView<Game> table;
+	private final ObservableList<GameSalon> data;
+	TableView<GameSalon> table;
 	Button btnJoin;
 	
 
@@ -47,32 +46,37 @@ public class Salon extends Group{
 //			Thread t1 = new Thread(new FindGame(data));
 //			t1.start();
 		
-		table = new TableView<Game>();
+		table = new TableView<GameSalon>();
 		
         table.setEditable(true);
         
         TableColumn proprio = new TableColumn("Proprietaire");
         TableColumn name = new TableColumn("Nom de la partie");
+        TableColumn nombre = new TableColumn("joueur");
         
         proprio.setMinWidth(150);
-        name.setMinWidth(250);
-        
         proprio.setMaxWidth(150);
-        name.setMaxWidth(250);
-        
-        name.setMinWidth(100);
         proprio.setCellValueFactory(
-                new PropertyValueFactory<Game, String>("proprio"));
-        name.setCellValueFactory(
-                new PropertyValueFactory<Game, String>("name"));
-        
-        name.setStyle("-fx-alignment: CENTER;");
+                new PropertyValueFactory<GameSalon, String>("proprio"));
         proprio.setStyle("-fx-alignment: CENTER;");
+        
+        name.setMaxWidth(200);
+        name.setMinWidth(200);
+        name.setCellValueFactory(
+                new PropertyValueFactory<GameSalon, String>("name"));
+        name.setStyle("-fx-alignment: CENTER;");
+        
+        nombre.setMaxWidth(100);
+        nombre.setMinWidth(100);
+        nombre.setCellValueFactory(
+                new PropertyValueFactory<GameSalon, String>("nombre"));
+        nombre.setStyle("-fx-alignment: CENTER;");
+
         
         table.setItems(data);
         table.setMaxHeight(250);
-        table.setMinWidth(400);
-        table.getColumns().addAll(proprio, name);
+        table.setMinWidth(450);
+        table.getColumns().addAll(proprio, name, nombre);
 
 
         BorderPane bp = new BorderPane();
@@ -167,10 +171,19 @@ public class Salon extends Group{
 					e.printStackTrace();
 				}
 				System.out.println("le proprio select est : "+table.getSelectionModel().getSelectedItem().getProprio()+ " le nom :"+table.getSelectionModel().getSelectedItem().getName());
-				out.println("Join,"+table.getSelectionModel().getSelectedItem().getName()+","+table.getSelectionModel().getSelectedItem().getProprio());
+				out.println("JoinGame,"+table.getSelectionModel().getSelectedItem().getName()+","+table.getSelectionModel().getSelectedItem().getProprio());
 			    out.flush();
 			}
 		});
+		
+		try {
+			out = new PrintWriter(socket.getOutputStream());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		out.println("Salon");
+	    out.flush();
 
 
 	}
@@ -185,8 +198,8 @@ public class Salon extends Group{
         btnJoin.setId("btninvalid");
 	}
 	
-	public void ajoutData(String proprio, String name){
-		data.add(new Game(proprio, name));
+	public void ajoutData(String proprio, String name, String nombre){
+		data.add(new GameSalon(proprio, name, nombre));
         if(data.size() > 0){
         btnJoin.setId("btnLogin");
         table.getSelectionModel().select(0);

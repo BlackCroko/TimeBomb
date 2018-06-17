@@ -12,7 +12,7 @@ import javafx.application.Platform;
 import javafx.scene.Group;
 
 
-public class Reception implements Runnable {
+public class Reception extends Thread {
 
 	private BufferedReader in;
 	private Socket socket;
@@ -45,7 +45,6 @@ public class Reception implements Runnable {
 	
 	public void arret(){
 		running = false;
-		System.out.println("try arret v2");
 	}
 	
 	public void createSalon(){
@@ -78,7 +77,7 @@ public class Reception implements Runnable {
 							 gs.createSalon();
 				});
 			    break;       
-			  case "salon":
+			  case ("salon"):
 				   
 				Platform.runLater(() -> {
 							 gs.setPseudo(infos[1]);
@@ -88,17 +87,43 @@ public class Reception implements Runnable {
 			  case "createGame":
 				   
 				Platform.runLater(() -> {
-							 gs.createSalonGame(infos[2]);
+					boolean proprio;
+							if(gs.getPseudo().equals(infos[2]))
+								proprio = true;
+							else proprio = false;
+							 gs.createSalonGame(infos[1], proprio);
 				});
 			    break;
 			  case "salonAjout":
 				Platform.runLater(() -> {
+							gs.cleanSalon();
+						if(infos.length != 1)
 							 gs.salonAjout(infos[1]);
 				});
 			    break;
 			  case "gameAjout":
 				Platform.runLater(() -> {
 							 gs.gameAjout(infos[1]);
+				});
+			    break;
+			  case "initGame":
+				Platform.runLater(() -> {
+							 gs.initGame(infos[1], infos[2], infos[3]);
+				});
+			    break;
+			  case "retourner":
+				Platform.runLater(() -> {
+							 gs.retournerCarte(infos[1], Integer.parseInt(infos[2]), Integer.parseInt(infos[3]), Integer.parseInt(infos[4]));
+				});
+			    break;
+			  case "distribution":
+				Platform.runLater(() -> {
+							 gs.distribution(infos[1]);
+				});
+			    break;
+			  case "finGame":
+				Platform.runLater(() -> {
+							 gs.FinGame(Integer.parseInt(infos[1]), infos[2]);
 				});
 			    break;
 			  default:

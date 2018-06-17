@@ -3,10 +3,12 @@ package Affichage;
 
 
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
 
-import Client.FindGame;
-import Entite.Game;
+
+import Entite.GameSalon;
 import Entite.Player;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,24 +32,20 @@ import javafx.scene.text.Text;
 
 public class SalonGame extends Group{
 
-	private boolean proprio = false;
-	
+	private boolean proprio;
+	private PrintWriter out;
 	private Socket socket;
 	
 	private final ObservableList<Player> data;
+	
+	private Button btnCreate;
 
-	public SalonGame(Socket socket, String title) {
-		
+	public SalonGame(Socket socket, String title, boolean proprio) {
+			this.proprio = proprio;
 			this.socket = socket;
 		
 		   data =
-			        FXCollections.observableArrayList(
-			            new Player("Smith"),
-			            new Player("Isabella"),
-			            new Player("Ethan"),
-			            new Player("Emma"),
-			            new Player("Michael")
-			        );
+			        FXCollections.observableArrayList();
 		
 		TableView<Player> table = new TableView<Player>();
 		
@@ -60,7 +58,7 @@ public class SalonGame extends Group{
         
         name.setMinWidth(100);
         name.setCellValueFactory(
-                new PropertyValueFactory<Game, String>("name"));
+                new PropertyValueFactory<GameSalon, String>("name"));
         
         table.setItems(data);
         table.setMaxHeight(250);
@@ -83,7 +81,7 @@ public class SalonGame extends Group{
         gridPane.setAlignment(Pos.CENTER);
         
        //Implementing Nodes for GridPane
-        Button btnCreate = new Button("Demarrer la partie");
+        btnCreate = new Button("Demarrer la partie");
         final Label lblMessage = new Label(title);
         lblMessage.setFont(Font.font("Courier New", FontWeight.BOLD, 14));
         //Adding Nodes to GridPane layout
@@ -123,10 +121,26 @@ public class SalonGame extends Group{
         //Add ID's to Nodes
         bp.setId("bp");
         gridPane.setId("root");
-        btnCreate.setId("btnLogin");
+        btnCreate.setId("btninvalid");
         text.setId("text");
 
 		// Action for btnLogin
+
+		btnCreate.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			public void handle(MouseEvent me) {
+				
+				try {
+					out = new PrintWriter(socket.getOutputStream());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		        if(data.size() >= 4){
+				out.println("startGame");
+			    out.flush();
+		        }
+			}
+		});
 
 
 
@@ -144,6 +158,17 @@ public class SalonGame extends Group{
 	
 	public void ajoutData(String name){
 		data.add(new Player(name));
+        if(data.size() > 3){
+        btnCreate.setId("btnLogin");
+        }
+        else
+        btnCreate.setId("btninvalid");
 	}
+
+	public ObservableList<Player> getData() {
+		return data;
+	}
+	
+	
 
 }

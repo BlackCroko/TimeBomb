@@ -1,17 +1,20 @@
 package Entite;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
@@ -19,53 +22,139 @@ import javafx.util.Duration;
 public class Carte extends StackPane {
 
 	private final Duration halfFlipDuration = Duration.seconds(0.5);
-	final SequentialTransition animation;
-	final TranslateTransition deplacement;
-	final SequentialTransition animation2;
+	private SequentialTransition animation;
+	private SequentialTransition animation2;
+	/*
+	 * final TranslateTransition deplacement; final SequentialTransition
+	 * animation2;
+	 */
+
+	private Image sourceImage;
+	private ImageView frontCard;
+	private ImageView backCard;
 	
+	private Socket socket;
+	private PrintWriter out;
+
 	private int nb;
-	
+	private int numero;
+	private int x;
+	private int y;
 	private boolean retourné = false;
 
-	public Carte(int nb, int x, int y, int numero) {
+	private int wcarte = 40;
+	private int hcarte = 90;
+
+	private boolean personnage = false;
+
+	public Carte(Socket socket, int nb, int x, int y, int numero) {
+		this.socket = socket;
 		this.nb = nb;
-		if(numero == 0)
-			retourné = true;
+		this.numero = numero;
+		this.x = x;
+		this.y = y;
+		init();
 
-		final Image sourceImage = new Image("spritesbomb.png");
+		// deplacement = move(backCard);
+		// animation2 = new SequentialTransition(animation, deplacement);
+
+	}
+
+	public void init() {
+		this.getChildren().clear();
+		if (personnage){
+			
+			sourceImage = new Image("spritesbomb.png");
+			//
+			frontCard = new ImageView(sourceImage);
+
+			frontCard.setViewport(new Rectangle2D(280 * 4, 0, 280, 535));
+			frontCard.setFitWidth(wcarte);
+			frontCard.setFitHeight(hcarte);
+
+			this.getChildren().add(frontCard);
+			this.setLayoutX((x - 5) - (wcarte));
+			this.setLayoutY(y + 5);
+		}else{
+		sourceImage = new Image("spritesbomb.png");
 		//
-		final ImageView frontCard = new ImageView(sourceImage);
+		frontCard = new ImageView(sourceImage);
+
 		frontCard.setViewport(new Rectangle2D(0, 0, 280, 535));
-		frontCard.setFitWidth(50);
-		frontCard.setFitHeight(100);
+		frontCard.setFitWidth(wcarte);
+		frontCard.setFitHeight(hcarte);
 
-		final ImageView backCard = new ImageView(sourceImage);
-		backCard.setViewport(new Rectangle2D(280 * nb, 0, 280, 535));
-		backCard.setFitWidth(50);
-		backCard.setFitHeight(100);
-
-		this.getChildren().addAll(backCard, frontCard);
-		this.setLayoutX((x + 15) + 55 * nb);
-		this.setLayoutY(y+5);
-
-		animation = new SequentialTransition(flip(frontCard, backCard));
-		deplacement = move(backCard);
-		animation2 = new SequentialTransition(animation, deplacement);
-
+		this.getChildren().add(frontCard);
+		this.setLayoutX((x + 5) + (wcarte + 5) * nb);
+		this.setLayoutY(y + 5);
+		}
 	}
 
 	public void startAnim() {
 		if (!retourné) {
-			animation2.play();
-			//deplacement.play();
+			animation.play();
+			// deplacement.play();
 			retourné = true;
 		}
+		animation.setOnFinished(new EventHandler<ActionEvent>() { 
+			  
+		    @Override 
+		    public void handle(ActionEvent actionEvent) { 
+				try {
+					out = new PrintWriter(socket.getOutputStream());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    	out.println("retournerfin,");
+				out.flush();
+		    } 
+		});
+	}
+
+	public void startAnimProprio() {
+		animation2.play();
+		animation.setDelay(new Duration(7000));
+		animation.play();
 	}
 	
-	private TranslateTransition move(Node front){
+	public void startAnimProprioPerso() {
+		animation2.play();
+		animation.setDelay(new Duration(3000));
+		animation.play();
+	}
+	
+
+
+	public void setupCarte(int choix) {
+		backCard = new ImageView(sourceImage);
+		backCard.setViewport(new Rectangle2D(280 * choix, 0, 280, 535));
+		backCard.setFitWidth(wcarte);
+		backCard.setFitHeight(hcarte);
+		this.getChildren().clear();
+		this.getChildren().addAll(backCard, frontCard);
+
+		animation = new SequentialTransition(flip(frontCard, backCard));
+
+	}
+
+	public void setupmyCarte(int choix) {
+		backCard = new ImageView(sourceImage);
+		backCard.setViewport(new Rectangle2D(280 * choix, 0, 280, 535));
+		backCard.setFitWidth(wcarte);
+		backCard.setFitHeight(hcarte);
+		this.getChildren().remove(frontCard);
+		this.getChildren().addAll(frontCard, backCard);
+
+		animation = new SequentialTransition(flip(backCard, frontCard));
+		animation2 = new SequentialTransition(flip(frontCard, backCard));
+
+	}
+
+	private TranslateTransition move(Node front) {
 		TranslateTransition moving = new TranslateTransition(halfFlipDuration, front);
-		moving.setToX(340 + 50 *nb - this.getLayoutX());
-		moving.setToY(450 - this.getLayoutY());
+		moving.setToX(390 - this.getLayoutX());
+		moving.setToY(325);
 		return moving;
 	}
 
@@ -84,4 +173,13 @@ public class Carte extends StackPane {
 		//
 		return new SequentialTransition(rotateOutFront, rotateInBack);
 	}
+
+	public boolean isPersonnage() {
+		return personnage;
+	}
+
+	public void setPersonnage(boolean personnage) {
+		this.personnage = personnage;
+	}
+
 }

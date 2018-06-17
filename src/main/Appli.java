@@ -1,17 +1,11 @@
 package main;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
-import Entite.Joueur;
+import Affichage.FinDeGame;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 public class Appli extends Application {
 	
@@ -22,23 +16,22 @@ public class Appli extends Application {
 	boolean rejouer = false;
 	
 	public void start(Stage primaryStage) {
-		width = 1000;
-		height = 800;
+		width = 720;
+		height = 720;
 		construirePlateauJeu(primaryStage);
 	}
 
 	/** construction du théatre et de la scène */
 	void construirePlateauJeu(Stage primaryStage) {
 			Group troupe = new Group();
-
-
-			Joueur moi = new Joueur(0);
-			Joueur J1 = new Joueur(1);
-			Joueur J2 = new Joueur(2);
-			Joueur J3 = new Joueur(3);
-			Joueur J4 = new Joueur(4);
 			
-			troupe.getChildren().addAll( moi, J1, J2, J3, J4);
+			FinDeGame fin = new FinDeGame(true, 1);
+			FinDeGame fin2 = new FinDeGame(false, Math.abs(1-1));
+			fin.addName("beatmaul");
+			fin.addName("blackcroko");
+			
+			
+			troupe.getChildren().addAll(fin, fin2);
 			Scene scene = new Scene(troupe, width, height, Color.ANTIQUEWHITE);
 			primaryStage.setTitle("Time Bomb");
 			primaryStage.setScene(scene);
