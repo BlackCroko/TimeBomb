@@ -29,8 +29,8 @@ public class GameState {
 		try {
 
 			System.out.println("Demande de connexion");
-			 socket = new Socket("88.189.128.229",2009);
-//			socket = new Socket("127.0.0.1", 2009);
+//			 socket = new Socket("88.189.128.229",2009);
+			socket = new Socket("127.0.0.1", 2009);
 			System.out.println("Connexion établie avec le serveur, authentification :");
 			rec = new Reception(this, socket);
 			rec.start();
