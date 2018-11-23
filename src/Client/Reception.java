@@ -10,6 +10,7 @@ import Affichage.Menu;
 import Affichage.Salon;
 import javafx.application.Platform;
 import javafx.scene.Group;
+import main.AppliClient;
 
 
 public class Reception extends Thread {
@@ -21,6 +22,9 @@ public class Reception extends Thread {
 	private Menu menu;
 	private static Group troupe;
 	private boolean running = true;
+	
+	private int width;
+	private int height;
 	
 	public Reception(GameState gameState, Socket socket){
 		this.socket = socket;
@@ -57,8 +61,15 @@ public class Reception extends Thread {
 	public void run() {
 		
 		while(running){
+			System.out.println(width+"    "+height);
+			if(width != (int) AppliClient.primaryStage.getWidth() || height != (int) AppliClient.primaryStage.getHeight()){
+				System.out.println("ça change !!!!"+ width+"   "+(int) AppliClient.primaryStage.getWidth() +"  "+ height +"       "+ (int) AppliClient.primaryStage.getHeight() );
+				width = (int) AppliClient.primaryStage.getWidth();
+				height = (int) AppliClient.primaryStage.getHeight();
+			}
+			
 	        try {
-	        	
+	        
 			message = in.readLine();
 			System.out.println("Le serveur vous dit :" +message);
 			String infos[] = message.split(",");

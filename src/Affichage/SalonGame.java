@@ -135,7 +135,7 @@ public class SalonGame extends Group{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-		        if(data.size() >= 4){
+		        if(data.size() >= 2){
 				out.println("startGame");
 			    out.flush();
 		        }

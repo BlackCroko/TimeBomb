@@ -1,18 +1,17 @@
 package Affichage;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import Client.Connection;
 import Client.Reception;
-import javafx.scene.Group;
+import javafx.scene.layout.GridPane;
 
 public class GameState {
 
-	private Group troupe;
+	private GridPane troupe;
 	private Socket socket;
 	private Reception rec;
 	private Thread t1;
@@ -24,14 +23,17 @@ public class GameState {
 	
 	private PrintWriter out;
 
-	public GameState(Group troupe) {
+	public GameState(GridPane troupe) {
 		this.troupe = troupe;
+		connection("local");
+
+	}
+	
+	public void connection(String type) {
 		try {
 
-			System.out.println("Demande de connexion");
-//			 socket = new Socket("88.189.128.229",2009);
-			socket = new Socket("127.0.0.1", 2009);
-			System.out.println("Connexion établie avec le serveur, authentification :");
+			Connection co = new Connection(type);
+			socket = co.getSocketserv();
 			rec = new Reception(this, socket);
 			rec.start();
 
@@ -42,7 +44,6 @@ public class GameState {
 //			System.err.println("Aucun serveur à l'écoute du port " + socket.getLocalPort());
 			afficheErreur();
 		}
-
 	}
 
 	public void createMenu() {
